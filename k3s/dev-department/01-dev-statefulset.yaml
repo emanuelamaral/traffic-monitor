@@ -1,0 +1,168 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-probe
+  namespace: dev
+spec:
+  clusterIP: None
+  selector:
+    app: dev-probe
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dev-probe
+  namespace: dev
+spec:
+  serviceName: dev-probe
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dev-probe
+  template:
+    metadata:
+      labels:
+        app: dev-probe
+        architecture: consolidated
+        department: dev
+    spec:
+      initContainers:
+        - name: suricata-rules-init
+          image: jasonish/suricata:8.0.1
+          command: ["/bin/sh", "-lc"]
+          args:
+            - |
+              set -e
+
+              echo "[suricata-init] Updating Suricata rules..."
+              suricata-update -D /var/lib/suricata
+
+              echo "[suricata-init] Rules directory:"
+              ls -lah /var/lib/suricata/rules || true
+          volumeMounts:
+            - name: suricata-lib
+              mountPath: /var/lib/suricata
+            - name: suricata-config
+              mountPath: /etc/suricata/suricata.yaml
+              subPath: suricata.yaml
+
+      containers:
+        - name: suricata
+          image: jasonish/suricata:8.0.1
+          args: ["-i", "lo", "-S", "/var/lib/suricata/rules/suricata.rules"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: suricata-logs
+              mountPath: /var/log/suricata
+            - name: suricata-lib
+              mountPath: /var/lib/suricata
+            - name: suricata-config
+              mountPath: /etc/suricata/suricata.yaml
+              subPath: suricata.yaml
+
+        - name: fluent-bit
+          image: cr.fluentbit.io/fluent/fluent-bit:2.1.9
+          env:
+            - name: PROBE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: fluent-bit-config
+              mountPath: /fluent-bit/etc/
+            - name: suricata-logs
+              mountPath: /var/log/suricata
+
+        - name: nginx-server
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+              name: http
+
+        - name: mysql-server
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "rootpass"
+            - name: MYSQL_DATABASE
+              value: "development"
+            - name: MYSQL_USER
+              value: "dev"
+            - name: MYSQL_PASSWORD
+              value: "123123"
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+
+        - name: host-1
+          image: alpine:3.20
+          command: ["/bin/sh", "-lc"]
+          args:
+            - |
+              apk add --no-cache curl mariadb-client >/dev/null
+
+              echo "[host-1] Starting traffic generation..."
+
+              while true; do
+                echo "[host-1] Accessing nginx-server"
+                curl -s -o /dev/null -w "[host-1] HTTP status: %{http_code}\n" http://127.0.0.1/
+
+                echo "[host-1] Accessing mysql-server"
+                mysql \
+                  -h 127.0.0.1 \
+                  -P 3306 \
+                  -udev \
+                  -p123123\
+                  development \
+                  -e "SELECT NOW() AS access_time, 'host-1' AS simulated_host;" || true
+
+                sleep 10
+              done
+
+        - name: host-2
+          image: alpine:3.20
+          command: ["/bin/sh", "-lc"]
+          args:
+            - |
+              apk add --no-cache curl mariadb-client >/dev/null
+
+              echo "[host-2] Starting traffic generation..."
+
+              while true; do
+                echo "[host-2] Accessing nginx-server"
+                curl -s -A "host-2-client" http://127.0.0.1/ >/dev/null || true
+
+                echo "[host-2] Accessing mysql-server"
+                mysql \
+                  -h 127.0.0.1 \
+                  -P 3306 \
+                  -udev \
+                  -p123123 \
+                  development \
+                  -e "SHOW DATABASES;" || true
+
+                sleep 15
+              done
+
+      volumes:
+        - name: suricata-logs
+          emptyDir: {}
+
+        - name: suricata-lib
+          emptyDir: {}
+
+        - name: mysql-data
+          emptyDir: {}
+
+        - name: suricata-config
+          configMap:
+            name: suricata-config
+
+        - name: fluent-bit-config
+          configMap:
+            name: fluent-bit-config

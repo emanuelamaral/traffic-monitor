@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: probe-hr
+  namespace: hr
+spec:
+  serviceName: "probe-hr"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: probe-hr
+  template:
+    metadata:
+      labels:
+        app: probe-hr
+    spec:
+      hostNetwork: true
+      initContainers:
+        - name: suricata-rules-init
+          image: jasonish/suricata:8.0.1
+          command: ["/bin/sh","-lc"]
+          args:
+            - |
+              set -e
+              suricata-update -D /var/lib/suricata
+          volumeMounts:
+            - name: suricata-lib
+              mountPath: /var/lib/suricata
+            - name: suricata-config
+              mountPath: /etc/suricata/suricata.yaml
+              subPath: suricata.yaml
+
+      containers:
+        - name: suricata
+          image: jasonish/suricata:8.0.1
+          args: ["-i", "br-hr", "-S", "/var/lib/suricata/rules/suricata.rules"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: suricata-logs
+              mountPath: /var/log/suricata
+            - name: suricata-config
+              mountPath: /etc/suricata/suricata.yaml
+              subPath: suricata.yaml
+            - name: suricata-lib
+              mountPath: /var/lib/suricata
+
+        - name: fluent-bit
+          image: cr.fluentbit.io/fluent/fluent-bit:2.1.9
+          env:
+            - name: PROBE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: fluent-bit-config
+              mountPath: /fluent-bit/etc/
+            - name: suricata-logs
+              mountPath: /var/log/suricata
+
+      volumes:
+        - name: suricata-logs
+          emptyDir: {}
+        - name: suricata-config
+          configMap:
+            name: suricata-config
+        - name: fluent-bit-config
+          configMap:
+            name: fluent-bit-config
+        - name: suricata-lib
+          emptyDir: {}

@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: host-hr-1
+  namespace: hr
+  labels:
+    app: host-hr-1
+    role: host
+    department: hr
+  annotations:
+    k8s.v1.cni.cncf.io/networks: '[{ "name": "hr-net", "ips": [ "10.0.0.11/24" ] }]'
+spec:
+  containers:
+    - name: host
+      image: alpine:latest
+      command: ["/bin/sh", "-lc"]
+      args:
+        - |
+          apk add --no-cache curl mariadb-client busybox-extras iputils
+
+          echo "[host-hr-1] Starting traffic generation..."
+
+          while true; do
+            echo "[host-hr-1] Accessing web-hr..."
+            curl -s -o /dev/null -w "[host-hr-1] HTTP status: %{http_code}\n" http://10.0.0.22/ || true
+
+            echo "[host-hr-1] Accessing mysql-hr..."
+            mysql \
+              -h 10.0.0.23 \
+              -P 3306 \
+              -uhr \
+              -p123123 \
+              human_resources\
+              -e "SELECT NOW() AS access_time, 'host-hr-1' AS simulated_host;" || true
+
+            sleep 10
+          done

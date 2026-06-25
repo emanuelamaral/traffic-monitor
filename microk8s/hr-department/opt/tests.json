@@ -1,0 +1,265 @@
+[
+  {
+    "tool": "nmap",
+    "variant": "http_headers_default",
+    "class": "malicious:nmap-http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 90,
+    "cmd": "nmap -Pn -sT --script http-headers -p 80 10.0.0.43"
+  },
+  {
+    "tool": "nikto",
+    "variant": "default_ua",
+    "class": "malicious:nikto-http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 180,
+    "cmd": "nikto -h http://10.0.0.43"
+  },
+  {
+    "tool": "gobuster",
+    "variant": "dir_common",
+    "class": "malicious:gobuster-http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 180,
+    "cmd": "gobuster dir -u http://10.0.0.43 -w /usr/share/seclists/Discovery/Web-Content/common.txt -a \"{TEST_ID}\" -t 50 -q"
+  },
+  {
+    "tool": "hydra",
+    "variant": "ssh_bruteforce_quick",
+    "class": "malicious:hydra-ssh-22",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      22
+    ],
+    "proto": "tcp",
+    "timeout_s": 90,
+    "cmd": "hydra -L /usr/share/seclists/Usernames/top-usernames-shortlist.txt -P /usr/share/seclists/Passwords/Common-Credentials/10k-most-common.txt -t 4 -w 2 -I -F -q ssh://10.0.0.43"
+  },
+  {
+    "tool": "curl",
+    "variant": "ua_nmap_sig_get",
+    "class": "malicious:curl-ua-nmap-http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 20,
+    "cmd": "curl -s -o /dev/null -A \"Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)\" http://10.0.0.43/nmaplowercheck{TEST_ID}"
+  },
+  {
+    "tool": "curl",
+    "variant": "ua_nikto_sig_head",
+    "class": "malicious:curl-ua-nikto-http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 20,
+    "cmd": "curl -s -o /dev/null -I -A \"Nikto/2.1.6\" http://10.0.0.43/"
+  },
+  {
+    "tool": "nmap",
+    "variant": "sv_mysql_3306",
+    "class": "malicious:nmap-mysql-3306",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      3306
+    ],
+    "proto": "tcp",
+    "timeout_s": 60,
+    "cmd": "nmap -Pn -sT -sV -p 3306 10.0.0.43"
+  },
+  {
+    "tool": "nmap",
+    "variant": "sv_postgres_5432",
+    "class": "malicious:nmap-postgres-5432",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      5432
+    ],
+    "proto": "tcp",
+    "timeout_s": 60,
+    "cmd": "nmap -Pn -sT -sV -p 5432 10.0.0.43"
+  },
+  {
+    "tool": "nmap",
+    "variant": "vnc_range_5800_5820",
+    "class": "malicious:nmap-vnc-5800-5820",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      5800,
+      5810,
+      5820
+    ],
+    "proto": "tcp",
+    "timeout_s": 80,
+    "cmd": "nmap -Pn -sT -p 5800-5820 10.0.0.43"
+  },
+  {
+    "tool": "nmap",
+    "variant": "vertical_1_1024_fast",
+    "class": "malicious:nmap-vertical-1-1024",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      22,
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 120,
+    "cmd": "nmap -Pn -sT -p 1-1024 --max-retries 1 --min-rate 200 10.0.0.43"
+  },
+  {
+    "tool": "curl",
+    "variant": "get_root_chrome",
+    "class": "benign:http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 15,
+    "cmd": "curl -s -o /dev/null -A \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36\" http://10.0.0.43/"
+  },
+  {
+    "tool": "curl",
+    "variant": "head_root_firefox",
+    "class": "benign:http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 15,
+    "cmd": "curl -s -o /dev/null -I -A \"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0\" http://10.0.0.43/"
+  },
+  {
+    "tool": "curl",
+    "variant": "get_favicon_safariua",
+    "class": "benign:http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 15,
+    "cmd": "curl -s -o /dev/null -A \"Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15\" http://10.0.0.43/favicon.ico"
+  },
+  {
+    "tool": "curl",
+    "variant": "get_robots_ff",
+    "class": "benign:http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 15,
+    "cmd": "curl -s -o /dev/null -A \"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:127.0) Gecko/20100101 Firefox/127.0\" http://10.0.0.43/robots.txt"
+  },
+  {
+    "tool": "curl",
+    "variant": "head_random_path",
+    "class": "benign:http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 15,
+    "cmd": "curl -s -o /dev/null -I -A \"Mozilla/5.0 (X11; Linux x86_64)\" http://10.0.0.43/static/{TEST_ID}"
+  },
+  {
+    "tool": "curl",
+    "variant": "benign_wget_ua",
+    "class": "benign:http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 15,
+    "cmd": "curl -s -o /dev/null -A \"Wget/1.21.3\" http://10.0.0.43/"
+  },
+  {
+    "tool": "curl",
+    "variant": "benign_curl_ua",
+    "class": "benign:http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 15,
+    "cmd": "curl -s -o /dev/null -A \"curl/7.88.1\" http://10.0.0.43/"
+  },
+  {
+    "tool": "curl",
+    "variant": "benign_pyreq_ua",
+    "class": "benign:http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 15,
+    "cmd": "curl -s -o /dev/null -A \"python-requests/2.31.0\" http://10.0.0.43/"
+  },
+  {
+    "tool": "curl",
+    "variant": "benign_go_ua",
+    "class": "benign:http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 15,
+    "cmd": "curl -s -o /dev/null -A \"Go-http-client/1.1\" http://10.0.0.43/"
+  },
+  {
+    "tool": "nc",
+    "variant": "tcp_connect_http_nc",
+    "class": "benign:http-80",
+    "target": "10.0.0.43",
+    "target_label": "binary",
+    "ports": [
+      80
+    ],
+    "proto": "tcp",
+    "timeout_s": 10,
+    "cmd": "nc -z -w1 10.0.0.43 80"
+  }
+]

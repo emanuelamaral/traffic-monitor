@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: host-fi-2
+  namespace: fi
+  labels:
+    app: host-fi-2
+    role: host
+    department: fi
+  annotations:
+    k8s.v1.cni.cncf.io/networks: '[{ "name": "fi-net", "ips": [ "11.0.0.12/24" ] }]'
+spec:
+  containers:
+    - name: host
+      image: alpine:latest
+      command: ["/bin/sh", "-lc"]
+      args:
+        - |
+          apk add --no-cache curl mariadb-client busybox-extras iputils
+
+          echo "[host-fi-2] Starting traffic generation..."
+
+          while true; do
+            echo "[host-fi-2] Accessing web-fi..."
+            curl -s -A "host-fi-2-client" http://11.0.0.22/ >/dev/null || true
+
+            echo "[host-fi-2] Accessing mysql-fi..."
+            mysql \
+              -h 11.0.0.23 \
+              -P 3306 \
+              -ufi \
+              -p123123 \
+              financial \
+              -e "SHOW DATABASES;" || true
+
+            sleep 15
+          done

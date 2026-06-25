@@ -1,0 +1,8 @@
+http.host: "0.0.0.0"
+xpack.monitoring.enabled: false
+
+log.level: info
+config.reload.automatic: true
+config.reload.interval: 10s
+
+pipeline.ecs_compatibility: disabled

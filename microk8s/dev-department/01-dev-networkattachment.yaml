@@ -1,0 +1,27 @@
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: dev-net
+  namespace: dev
+spec:
+  config: '{
+    "cniVersion": "0.3.1",
+    "type": "bridge",
+    "bridge": "br-dev",
+    "isGateway": false,
+    "ipMasq": false,
+    "hairpinMode": true,
+    "capabilities": {
+      "ips": true
+    },
+    "ipam": {
+      "type": "host-local",
+      "ranges": [
+        [
+          {
+            "subnet": "12.0.0.0/24"
+          }
+        ]
+      ]
+    }
+  }'

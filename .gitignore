@@ -1,0 +1,91 @@
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+
+.env
+.env.*
+!.env.example
+*.secret
+*.secrets
+secrets/
+certs/
+keys/
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+*.jks
+*kubeconfig*
+.kube/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# Docker and local runtime data
+.docker/
+docker-data/
+data/
+volumes/
+*.pid
+
+# Logs and generated monitoring outputs
+*.log
+central-monitor-*.log
+probe-monitoring-*.log
+host-dev-*-replicas.log
+logs/
+
+# Suricata and Fluent Bit runtime outputs
+eve.json
+fast.log
+stats.log
+suricata.log
+*.jsonl
+!microk8s/hr-department/opt/out/analyze_binary.py
+
+# Packet captures
+*.pcap
+*.pcapng
+microk8s/**/pcaps/*
+!microk8s/**/pcaps/.gitkeep
+
+# Temporary experiment exports
+microk8s/**/eve-out/*
+!microk8s/**/eve-out/.gitkeep
+microk8s/**/opt/out/*.jsonl
+
+# Large or temporary archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+
+# OpenSearch, Kafka, and Logstash local dumps
+opensearch-data*/
+kafka-data/
+zookeeper-data/
+zookeeper-log/
+logstash-data/
+
+# Generated reports and scratch files
+scratch/
+tmp/
+temp/
+*.tmp

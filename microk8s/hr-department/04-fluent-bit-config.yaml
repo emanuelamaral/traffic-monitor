@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: hr
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush          1
+        Log_Level      info
+        Daemon         Off
+        Parsers_File   parsers.conf
+
+    [INPUT]
+        Name              tail
+        Path              /var/log/suricata/eve.json
+        Tag               suricata
+        Parser            json
+        Refresh_Interval  10
+        Read_From_Head    true
+        Skip_Long_Lines   On
+        Mem_Buf_Limit     10MB
+
+    [FILTER]
+        Name           modify
+        Match          *
+        Add            probe_id ${PROBE_ID}
+
+    [OUTPUT]
+        Name            kafka
+        Match           *
+        Brokers         ${KAFKA_BROKERS}
+        Topics          ${KAFKA_TOPIC}
+        Format          json
+        Retry_Limit     False
+
+  parsers.conf: |
+    [PARSER]
+        Name          json
+        Format        json
+        Time_key      timestamp
+        Time_Format   %Y-%m-%dT%H:%M:%S.%L%z
+        Time_keep     On
