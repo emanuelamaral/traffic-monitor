@@ -863,6 +863,6 @@ New raw logs, packet captures, and temporary JSONL outputs should not be committ
 
 ---
 
-## 17. License
+## 16. License
 
 This project is distributed under the MIT License. See the `LICENSE` file for details.
