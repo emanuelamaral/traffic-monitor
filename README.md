@@ -177,9 +177,6 @@ OPENSEARCH_DASHBOARDS_PUBLIC_HOST=opendash.example.org
 GRAFANA_PUBLIC_HOST=grafana.example.org
 GRAFANA_ADMIN_PASSWORD=change-me-strong-password
 ```
-
-Do not commit the real `.env` file. Commit only `.env.example` with non-sensitive placeholder values.
-
 ---
 
 ## 5. Deploying the central analytics node
@@ -307,7 +304,7 @@ docker compose --env-file .env -f docker/message-broker.yaml ps
 
 > The Kafka service disables automatic topic creation. Therefore, the topic used by the probes must be created manually before the pipeline is considered ready.
 
-Create the Kafka topic with three partitions:
+Create the Kafka topic with one partition:
 
 ```bash
 KAFKA_CONTAINER=$(docker ps --format '{{.Names}}' | grep -i kafka | head -n1)
