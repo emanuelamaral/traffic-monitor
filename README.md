@@ -52,10 +52,8 @@ The message broker stack contains:
 The corresponding Compose file is:
 
 ```text
-docker/messagre-broker.yaml
+docker/message-broker.yaml
 ```
-
-> Note: the filename is currently kept as it exists in the repository. If it is renamed to `message-broker.yaml`, update the commands accordingly.
 
 ### 1.3 Probe environments
 
@@ -92,7 +90,8 @@ It is divided into three departmental scenarios:
 │   └── create-partition.txt
 ├── docker/
 │   ├── central-node.yaml
-│   ├── messagre-broker.yaml
+│   ├── Dockerfile
+│   ├── message-broker.yaml
 │   └── logstash/
 │       ├── config/
 │       │   ├── logstash.yml
@@ -116,6 +115,7 @@ It is divided into three departmental scenarios:
 ├── LICENSE
 └── README.md
 ```
+
 
 The `results/` directory stores experimental result files. Raw packet captures, generated Suricata logs, temporary EVE outputs, credentials, certificates, and local runtime files should not be committed to the repository.
 
@@ -296,13 +296,13 @@ curl -k -u "${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}" \
 Deploy the message broker and processing stack:
 
 ```bash
-docker compose --env-file .env -f docker/messagre-broker.yaml up -d
+docker compose --env-file .env -f docker/message-broker.yaml up -d
 ```
 
 Check the services:
 
 ```bash
-docker compose --env-file .env -f docker/messagre-broker.yaml ps
+docker compose --env-file .env -f docker/message-broker.yaml ps
 ```
 
 > The Kafka service disables automatic topic creation. Therefore, the topic used by the probes must be created manually before the pipeline is considered ready.
